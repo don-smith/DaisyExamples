@@ -2,6 +2,12 @@
 #include "daisysp.h"
 #include <string>
 
+#include "screensavers/Automata.cpp"
+#include "screensavers/Mandelbrot.cpp"
+#include "screensavers/Serviettes.cpp"
+#include "screensavers/Gnarl.cpp"
+#include "screensavers/Flakes.cpp"
+
 using namespace daisy;
 using namespace daisysp;
 
@@ -24,23 +30,23 @@ void UpdateControls();
 
 int main(void)
 {
-	float samplerate;
-	patch.Init();
-	samplerate = patch.AudioSampleRate();
+	  float samplerate;
+  	patch.Init();
+  	samplerate = patch.AudioSampleRate();
 
     currentOsc = 0;
     oscIsActive = false;
-	finalWave = Oscillator::WAVE_POLYBLEP_TRI;
+  	finalWave = Oscillator::WAVE_POLYBLEP_TRI;
 
-	SetupOsc(samplerate);
-	SetupWaveNames();
+  	SetupOsc(samplerate);
+  	SetupWaveNames();
 
-	patch.StartAdc();
-	patch.StartAudio(AudioCallback);
-	while(1)
-	{
+  	patch.StartAdc();
+  	patch.StartAudio(AudioCallback);
+  	while(1)
+  	{
         UpdateOled();
-	}
+  	}
 }
 
 void SetupOsc(float samplerate)
@@ -63,16 +69,16 @@ void SetupWaveNames()
 
 void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, size_t size)
 {
-	UpdateControls();
-	for(size_t i = 0; i < size; i++)
-	{
+  	UpdateControls();
+  	for(size_t i = 0; i < size; i++)
+  	{
         //Process and output the four oscillators
         for(size_t chn = 0; chn < 4; chn++)
         {
             float sig = osc[chn].Process();
             out[chn][i] = sig;
         }
-	}
+  	}
 }
 
 void UpdateOled()

@@ -1,8 +1,8 @@
 # Project Name
-TARGET = FourByFour
+TARGET = Quadosci
 
 # Sources
-CPP_SOURCES = FourByFour.cpp
+CPP_SOURCES = Quadosci.cpp
 
 # Library Locations
 LIBDAISY_DIR = ../../libDaisy/
