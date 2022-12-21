@@ -2,12 +2,6 @@
 #include "daisysp.h"
 #include <string>
 
-#include "screensavers/Automata.cpp"
-#include "screensavers/Mandelbrot.cpp"
-#include "screensavers/Serviettes.cpp"
-#include "screensavers/Gnarl.cpp"
-#include "screensavers/Flakes.cpp"
-
 using namespace daisy;
 using namespace daisysp;
 
@@ -15,11 +9,13 @@ DaisyPatch patch;
 
 Oscillator osc[4];
 int waveforms[4] = { 0, 0, 0, 0 };
+bool screensaverIsOn = false;
 
 std::string waveNames[5];
 
 int finalWave;
 int currentOsc;
+int idleSinceMs;
 bool oscIsActive;
 
 void SetupOsc(float);
@@ -27,15 +23,18 @@ void SetupWaveNames();
 void AudioCallback(AudioHandle::InputBuffer, AudioHandle::OutputBuffer, size_t);
 void UpdateOled();
 void UpdateControls();
+void PostponeScreensaver();
+void StartScreensaver();
 
 int main(void)
 {
-	  float samplerate;
+	float samplerate;
   	patch.Init();
   	samplerate = patch.AudioSampleRate();
 
     currentOsc = 0;
     oscIsActive = false;
+    idleSinceMs = System::GetNow();
   	finalWave = Oscillator::WAVE_POLYBLEP_TRI;
 
   	SetupOsc(samplerate);
@@ -84,6 +83,11 @@ void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, s
 void UpdateOled()
 {
     patch.display.Fill(false);
+
+    if (screensaverIsOn) {
+        patch.display.Update();
+        return;
+    }
 
     patch.display.SetCursor(0, 0);
     std::string title  = "Quadosci";
@@ -158,6 +162,11 @@ void UpdateControls()
         ctrl[i] = powf(2.f, ctrl[i]) * 55; //Hz
     }
 
+    // save the current value of oscIsActive, currentOsc and waveforms[currentOsc]
+    int waveformBefore = waveforms[currentOsc];
+    bool oscIsActiveBefore = oscIsActive;
+    int currentOscBefore = currentOsc;
+
     if(oscIsActive)
     {
         waveforms[currentOsc] += patch.encoder.Increment();
@@ -171,10 +180,28 @@ void UpdateControls()
         oscIsActive = patch.encoder.RisingEdge() ? true : false;
     }
 
+    // postpone or activate screensaver
+    if(
+        (waveformBefore != waveforms[currentOsc]) ||
+        (oscIsActiveBefore != oscIsActive) ||
+        (currentOscBefore != currentOsc)
+    ) PostponeScreensaver();
+    else if((System::GetNow() - idleSinceMs) > 1000 * 60 * 1) StartScreensaver();
+
     //Adjust oscillators based on inputs
     for(int i = 0; i < 4; i++)
     {
         osc[i].SetFreq(ctrl[i]);
         osc[i].SetWaveform((uint8_t)waveforms[i]);
     }
+}
+
+void StartScreensaver() {
+    oscIsActive = false;
+    screensaverIsOn = true;
+}
+
+void PostponeScreensaver() {
+    screensaverIsOn = false;
+    idleSinceMs = System::GetNow();
 }
