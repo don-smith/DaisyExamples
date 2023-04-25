@@ -52,7 +52,8 @@ void SetupVoiceManagers (float samplerate)
 {
     for(size_t i = 0; i < 4; i++)
     {
-        managers[i].Init(samplerate, waveforms[i]);
+        VoiceManager<8> *mgr = &managers[i];
+        mgr->Init(samplerate, waveforms[i]);
     }
 }
 
@@ -68,7 +69,8 @@ void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, s
         for(size_t chn = 0; chn < 4; chn++)
         {
 			sum = 0.f;
-			sum = managers[chn].Process() * 0.5f;
+            VoiceManager<8> *mgr = &managers[chn];
+			sum = mgr->Process() * 0.5f;
 			out[chn][i] = sum;
         }
 	}
