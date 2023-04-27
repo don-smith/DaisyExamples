@@ -112,8 +112,8 @@ void UpdateOled() {
     for(size_t i = 0; i < mgr_count; i++) {
         size_t row = i * 12, col = 0;
         patch.display.SetCursor(col, row);
-        // size_t active = i; // temporary until menu is built
-        std::string count = std::to_string(i + 1);
+        size_t active = managers[i].GetActiveCount();
+        std::string count = std::to_string(active);
         patch.display.WriteString(&count[0], Font_7x10, true);
     }
 

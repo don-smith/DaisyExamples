@@ -41,6 +41,7 @@ class VoiceManager
     void OnNoteOn(float notenumber, float velocity);
     void OnNoteOff(float notenumber);
     void FreeAllVoices();
+    size_t GetActiveCount();
 
   private:
     Voice  voices[max_voices];
