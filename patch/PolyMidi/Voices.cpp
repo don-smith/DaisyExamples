@@ -44,6 +44,11 @@ void Voice::OnNoteOn(float note, float velocity)
     osc_.SetFreq(mtof(note_));
 }
 
+void Voice::SetCutoff(float freq)
+{
+
+}
+
 void Voice::OnNoteOff() { env_gate_ = false; }
 
 inline bool Voice::IsActive() const { return active_; }
@@ -64,8 +69,7 @@ void VoiceManager<max_voices>::Init(float samplerate, size_t waveform)
 {
     for(size_t i = 0; i < max_voices; i++)
     {
-        Voice *v = &voices[i];
-        v->Init(samplerate, waveform);
+        voices[i].Init(samplerate, waveform);
     }
 }
 
@@ -75,8 +79,7 @@ float VoiceManager<max_voices>::Process()
     float sum = 0.f;
     for(size_t i = 0; i < max_voices; i++)
     {
-        Voice *v = &voices[i];
-        sum += v->Process();
+        sum += voices[i].Process();
     }
     return sum;
 }
@@ -96,10 +99,10 @@ void VoiceManager<max_voices>::OnNoteOff(float notenumber)
 {
     for(size_t i = 0; i < max_voices; i++)
     {
-        Voice *v = &voices[i];
-        if(v->IsActive() && v->GetNote() == notenumber)
+        Voice v = voices[i];
+        if(v.IsActive() && v.GetNote() == notenumber)
         {
-            v->OnNoteOff();
+            v.OnNoteOff();
         }
     }
 }
@@ -109,24 +112,17 @@ void VoiceManager<max_voices>::FreeAllVoices()
 {
     for(size_t i = 0; i < max_voices; i++)
     {
-        Voice *v = &voices[i];
-        v->OnNoteOff();
+        voices[i].OnNoteOff();
     }
 }
 
 template<size_t max_voices>
-size_t VoiceManager<max_voices>::GetActiveCount()
+void VoiceManager<max_voices>::SetCutoff(float freq)
 {
-    size_t is_active = 0;
     for(size_t i = 0; i < max_voices; i++)
     {
-        Voice *v = &voices[i];
-        if(v->IsActive())
-        {
-            is_active += 1;
-        }
+        voices[i].SetCutoff(freq)
     }
-    return is_active;
 }
 
 template<size_t max_voices>

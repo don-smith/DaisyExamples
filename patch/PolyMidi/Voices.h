@@ -18,6 +18,7 @@ class Voice
     float Process();
     void OnNoteOn(float note, float velocity);
     void OnNoteOff();
+    void SetCutoff(float);
 
     inline bool  IsActive() const;
     inline float GetNote() const;
@@ -42,6 +43,7 @@ class VoiceManager
     void OnNoteOff(float notenumber);
     void FreeAllVoices();
     size_t GetActiveCount();
+    void SetCutoff(float);
 
   private:
     Voice  voices[max_voices];

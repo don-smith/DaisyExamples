@@ -23,6 +23,7 @@ VoiceManager<8> managers[4];
 void SetupVoiceManagers(float);
 void HandleMidiMessage(daisy::MidiEvent);
 void AudioCallback(AudioHandle::InputBuffer, AudioHandle::OutputBuffer, size_t);
+void FreeAllVoices();
 void UpdateOled();
 
 int main(void)
@@ -39,11 +40,22 @@ int main(void)
 
 	while(1) {
         UpdateOled();
+
         patch.midi.Listen();
-        // Handle MIDI Events
         while(patch.midi.HasEvents())
         {
             HandleMidiMessage(patch.midi.PopEvent());
+        }
+
+        patch.ProcessAllControls();
+        if(patch.encoder.RisingEdge())
+        {
+            FreeAllVoices();
+        }
+
+        for(size_t i = 0; i < 4; i++)
+        {
+            managers[i].SetCutoff(250.f + patch.GetKnobValue((DaisyPatch::Ctrl)i) * 8000.f);
         }
 	}
 }
@@ -52,8 +64,7 @@ void SetupVoiceManagers (float samplerate)
 {
     for(size_t i = 0; i < 4; i++)
     {
-        VoiceManager<8> *mgr = &managers[i];
-        mgr->Init(samplerate, waveforms[i]);
+        managers[i].Init(samplerate, waveforms[i]);
     }
 }
 
@@ -61,7 +72,6 @@ void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, s
 {
 	float sum = 0.f;
 
-	// patch.ProcessAllControls();
 
 	for (size_t i = 0; i < size; i++)
 	{
@@ -69,8 +79,7 @@ void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, s
         for(size_t chn = 0; chn < 4; chn++)
         {
 			sum = 0.f;
-            VoiceManager<8> *mgr = &managers[chn];
-			sum = mgr->Process() * 0.5f;
+			sum = managers[chn].Process() * 0.75f;
 			out[chn][i] = sum;
         }
 	}
@@ -79,7 +88,7 @@ void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, s
 // Typical Switch case for Message Type.
 void HandleMidiMessage(MidiEvent m)
 {
-    VoiceManager<8> *mgr = &managers[m.channel];
+    VoiceManager<8> mgr = managers[m.channel];
 
     switch(m.type)
     {
@@ -89,18 +98,18 @@ void HandleMidiMessage(MidiEvent m)
             // Note Off can come in as Note On w/ 0 Velocity
             if(p.velocity == 0.f)
             {
-                mgr->OnNoteOff(p.note);
+                mgr.OnNoteOff(p.note);
             }
             else
             {
-                mgr->OnNoteOn(p.note, p.velocity);
+                mgr.OnNoteOn(p.note, p.velocity);
             }
         }
         break;
         case NoteOff:
         {
             NoteOffEvent p = m.AsNoteOff();
-            mgr->OnNoteOff(p.note);
+            mgr.OnNoteOff(p.note);
         }
         break;
         default: break;
@@ -112,13 +121,19 @@ void UpdateOled() {
     patch.display.Fill(false);
 
     for(size_t i = 0; i < mgr_count; i++) {
-        VoiceManager<8> *mgr = &managers[i];
         size_t row = i * 12, col = 0;
         patch.display.SetCursor(col, row);
-        size_t active = mgr->GetActiveCount();
+        size_t active = 0; // temporary until menu is built
         std::string count = std::to_string(active);
         patch.display.WriteString(&count[0], Font_7x10, true);
     }
 
     patch.display.Update();
+}
+ 
+void FreeAllVoices() {
+    for(size_t i = 0; i < 4; i++)
+    {
+        managers[i].FreeAllVoices();
+    }
 }
