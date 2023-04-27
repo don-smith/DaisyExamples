@@ -44,11 +44,6 @@ void Voice::OnNoteOn(float note, float velocity)
     osc_.SetFreq(mtof(note_));
 }
 
-void Voice::SetCutoff(float freq)
-{
-
-}
-
 void Voice::OnNoteOff() { env_gate_ = false; }
 
 inline bool Voice::IsActive() const { return active_; }
@@ -113,15 +108,6 @@ void VoiceManager<max_voices>::FreeAllVoices()
     for(size_t i = 0; i < max_voices; i++)
     {
         voices[i].OnNoteOff();
-    }
-}
-
-template<size_t max_voices>
-void VoiceManager<max_voices>::SetCutoff(float freq)
-{
-    for(size_t i = 0; i < max_voices; i++)
-    {
-        voices[i].SetCutoff(freq)
     }
 }
 

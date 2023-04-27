@@ -46,17 +46,6 @@ int main(void)
         {
             HandleMidiMessage(patch.midi.PopEvent());
         }
-
-        patch.ProcessAllControls();
-        if(patch.encoder.RisingEdge())
-        {
-            FreeAllVoices();
-        }
-
-        for(size_t i = 0; i < 4; i++)
-        {
-            managers[i].SetCutoff(250.f + patch.GetKnobValue((DaisyPatch::Ctrl)i) * 8000.f);
-        }
 	}
 }
 
@@ -123,8 +112,8 @@ void UpdateOled() {
     for(size_t i = 0; i < mgr_count; i++) {
         size_t row = i * 12, col = 0;
         patch.display.SetCursor(col, row);
-        size_t active = 0; // temporary until menu is built
-        std::string count = std::to_string(active);
+        // size_t active = i; // temporary until menu is built
+        std::string count = std::to_string(i);
         patch.display.WriteString(&count[0], Font_7x10, true);
     }
 
