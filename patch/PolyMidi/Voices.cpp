@@ -20,7 +20,7 @@ void Voice::Init(float samplerate, size_t waveform)
     env_.SetSustainLevel(0.5f);
     env_.SetTime(ADSR_SEG_ATTACK, 0.005f);
     env_.SetTime(ADSR_SEG_DECAY, 0.005f);
-    env_.SetTime(ADSR_SEG_RELEASE, 0.001f);
+    env_.SetTime(ADSR_SEG_RELEASE, 0.02f);
 }
 
 float Voice::Process()
