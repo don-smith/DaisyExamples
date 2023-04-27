@@ -113,7 +113,7 @@ void UpdateOled() {
         size_t row = i * 12, col = 0;
         patch.display.SetCursor(col, row);
         // size_t active = i; // temporary until menu is built
-        std::string count = std::to_string(i);
+        std::string count = std::to_string(i + 1);
         patch.display.WriteString(&count[0], Font_7x10, true);
     }
 
