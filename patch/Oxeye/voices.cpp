@@ -1,5 +1,8 @@
 #include "Voices.h"
 
+using namespace oxeye;
+using namespace daisysp;
+
 //
 // Voice implementation
 //

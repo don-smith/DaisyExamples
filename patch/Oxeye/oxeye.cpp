@@ -3,10 +3,12 @@
 #include "daisy_patch.h"
 #include "daisysp.h"
 
-#include "menu.h"
 #include "voices.h"
+#include "ui.h"
 
-DaisyPatch patch;
+using namespace std;
+using namespace daisy;
+using namespace daisysp;
 
 size_t waveforms[4] = {
     Oscillator::WAVE_SIN,
@@ -17,20 +19,22 @@ size_t waveforms[4] = {
 
 // Limit wave shapes to sine, triangle, saw, ramp & square
 size_t lastwave = Oscillator::WAVE_POLYBLEP_TRI;
-std::string waveNames[5] = {
+string waveNames[5] = {
     "sin", "tri", "saw", "rmp", "sqr"
 };
 
-static VoiceManager<8> managers[4];
+static oxeye::VoiceManager<8> managers[4];
 
-void UpdateOled();
 void SetupVoiceManagers(float);
+void UpdateOled(DaisyPatch, oxeye::UI);
 void HandleMidiMessage(daisy::MidiEvent);
 void AudioCallback(AudioHandle::InputBuffer, AudioHandle::OutputBuffer, size_t);
 
 int main(void)
 {
+    oxeye::UI ui;
 	float samplerate;
+    DaisyPatch patch;
 
 	patch.Init();
 	samplerate = patch.AudioSampleRate();
@@ -41,7 +45,7 @@ int main(void)
 	patch.StartAudio(AudioCallback);
 
 	while(1) {
-        UpdateOled();
+        UpdateOled(patch, ui);
 
         patch.midi.Listen();
         while(patch.midi.HasEvents())
@@ -78,7 +82,7 @@ void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, s
 // Typical Switch case for Message Type.
 void HandleMidiMessage(MidiEvent m)
 {
-    VoiceManager<8> *mgr = &managers[m.channel];
+    oxeye::VoiceManager<8> *mgr = &managers[m.channel];
 
     switch(m.type)
     {
@@ -114,19 +118,7 @@ void HandleMidiMessage(MidiEvent m)
     }
 }
 
-void UpdateOled() {
-    size_t mgr_count = 4;
-    patch.display.Fill(false);
-
-    for(size_t i = 0; i < mgr_count; i++)
-    {
-        size_t row = i * 12, col = 0;
-        patch.display.SetCursor(col, row);
-        size_t active = managers[i].GetActiveCount();
-        std::string count = "Active: " + std::to_string(active);
-        patch.display.WriteString(&count[0], Font_7x10, true);
-    }
-
-    patch.display.Update();
+void UpdateOled(DaisyPatch patch, oxeye::UI ui) {
+    ui.Show(patch);
 }
  
