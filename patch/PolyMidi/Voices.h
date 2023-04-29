@@ -1,6 +1,4 @@
-#pragma once
-#ifndef VOICES_H
-#define VOICES_H
+// #pragma once
 
 #include "daisy_patch.h"
 #include "daisysp.h"
@@ -26,7 +24,7 @@ class Voice
     Oscillator osc_;
     Adsr       env_;
     float      note_, velocity_;
-    bool       active_ , env_gate_;
+    bool       active_, env_gate_;
 };
 
 template<size_t max_voices>
@@ -36,16 +34,14 @@ class VoiceManager
     VoiceManager();
     ~VoiceManager();
 
-    void Init(float samplerate, size_t waveform);
     float Process();
+    void Init(float samplerate, size_t waveform);
     void OnNoteOn(float notenumber, float velocity);
     void OnNoteOff(float notenumber);
-    void FreeAllVoices();
+
     size_t GetActiveCount();
 
   private:
     Voice  voices[max_voices];
     Voice* FindFreeVoice();
 };
-
-#endif // VOICES_H

@@ -9,8 +9,8 @@ Voice::~Voice() {}
 
 void Voice::Init(float samplerate, size_t waveform)
 {
-    note_ = 0;
-    velocity_ = 0;
+    note_ = 0.f;
+    velocity_ = 0.f;
     active_ = false;
     env_gate_ = false;
     osc_.Init(samplerate);
@@ -20,14 +20,14 @@ void Voice::Init(float samplerate, size_t waveform)
     env_.SetSustainLevel(0.5f);
     env_.SetTime(ADSR_SEG_ATTACK, 0.005f);
     env_.SetTime(ADSR_SEG_DECAY, 0.005f);
-    env_.SetTime(ADSR_SEG_RELEASE, 0.02f);
+    env_.SetTime(ADSR_SEG_RELEASE, 0.2f);
 }
 
 float Voice::Process()
 {
     if(active_)
     {
-        float sig, amp;
+        float sig = 0, amp = 0;
         amp = env_.Process(env_gate_);
         active_ = env_.IsRunning();
         sig = osc_.Process();
@@ -40,8 +40,8 @@ void Voice::OnNoteOn(float note, float velocity)
 {
     note_     = note;
     velocity_ = velocity;
-    env_gate_ = active_ = true;
     osc_.SetFreq(mtof(note_));
+    env_gate_ = active_ = true;
 }
 
 void Voice::OnNoteOff() { env_gate_ = false; }
@@ -64,8 +64,7 @@ void VoiceManager<max_voices>::Init(float samplerate, size_t waveform)
 {
     for(size_t i = 0; i < max_voices; i++)
     {
-        Voice *v = &voices[i];
-        v->Init(samplerate, waveform);
+        voices[i].Init(samplerate, waveform);
     }
 }
 
@@ -75,8 +74,7 @@ float VoiceManager<max_voices>::Process()
     float sum = 0.f;
     for(size_t i = 0; i < max_voices; i++)
     {
-        Voice *v = &voices[i];
-        sum += v->Process();
+        sum += voices[i].Process();
     }
     return sum;
 }
@@ -85,10 +83,10 @@ template<size_t max_voices>
 void VoiceManager<max_voices>::OnNoteOn(float notenumber, float velocity)
 {
     Voice *v = FindFreeVoice();
-    if(v == NULL) {
-        return;
+    if(v != NULL)
+    {
+        v->OnNoteOn(notenumber, velocity);
     }
-    v->OnNoteOn(notenumber, velocity);
 }
 
 template<size_t max_voices>
@@ -105,44 +103,30 @@ void VoiceManager<max_voices>::OnNoteOff(float notenumber)
 }
 
 template<size_t max_voices>
-void VoiceManager<max_voices>::FreeAllVoices()
+Voice* VoiceManager<max_voices>::FindFreeVoice()
 {
     for(size_t i = 0; i < max_voices; i++)
     {
-        Voice *v = &voices[i];
-        v->OnNoteOff();
+        if(!voices[i].IsActive())
+        {
+            return &voices[i];
+        }
     }
+    return NULL;
 }
 
 template<size_t max_voices>
 size_t VoiceManager<max_voices>::GetActiveCount()
 {
-    size_t is_active = 0;
+    size_t count = 0;
     for(size_t i = 0; i < max_voices; i++)
     {
-        Voice *v = &voices[i];
-        if(v->IsActive())
+        if(voices[i].IsActive())
         {
-            is_active += 1;
+            count += 1;
         }
     }
-    return is_active;
-}
-
-template<size_t max_voices>
-Voice* VoiceManager<max_voices>::FindFreeVoice()
-{
-    Voice *found = NULL;
-    for(size_t i = 0; i < max_voices; i++)
-    {
-        Voice *v = &voices[i];
-        if(!v->IsActive())
-        {
-            found = v;
-            break;
-        }
-    }
-    return found;
+    return count;
 }
 
 template class VoiceManager<8>;
