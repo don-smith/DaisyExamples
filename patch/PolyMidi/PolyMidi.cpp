@@ -81,24 +81,32 @@ void HandleMidiMessage(MidiEvent m)
     {
         case NoteOn:
         {
-            NoteOnEvent p = m.AsNoteOn();
+            NoteOnEvent n = m.AsNoteOn();
             // Note Off can come in as Note On w/ 0 Velocity
-            if(p.velocity == 0.f)
+            if(n.velocity == 0.f)
             {
-                mgr->OnNoteOff(p.note);
+                mgr->OnNoteOff(n.note);
             }
             else
             {
-                mgr->OnNoteOn(p.note, p.velocity);
+                mgr->OnNoteOn(n.note, n.velocity);
             }
         }
         break;
+
         case NoteOff:
         {
-            NoteOffEvent p = m.AsNoteOff();
-            mgr->OnNoteOff(p.note);
+            mgr->OnNoteOff(m.AsNoteOff().note);
         }
         break;
+
+        case ControlChange:
+        {
+            ControlChangeEvent cc = m.AsControlChange();
+            mgr->OnControlChange(cc.control_number, cc.value);
+        }
+        break;
+
         default: break;
     }
 }

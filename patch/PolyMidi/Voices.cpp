@@ -21,6 +21,10 @@ void Voice::Init(float samplerate, size_t waveform)
     env_.SetTime(ADSR_SEG_ATTACK, 0.005f);
     env_.SetTime(ADSR_SEG_DECAY, 0.005f);
     env_.SetTime(ADSR_SEG_RELEASE, 0.2f);
+    filt_.Init(samplerate);
+    filt_.SetFreq(6000.f);
+    filt_.SetRes(0.6f);
+    filt_.SetDrive(0.8f);
 }
 
 float Voice::Process()
@@ -31,7 +35,8 @@ float Voice::Process()
         amp = env_.Process(env_gate_);
         active_ = env_.IsRunning();
         sig = osc_.Process();
-        return sig * (velocity_ / 127.f) * amp;
+        filt_.Process(sig);
+        return filt_.Low() * (velocity_ / 127.f) * amp;
     }
     return 0.f;
 }
@@ -42,6 +47,62 @@ void Voice::OnNoteOn(float note, float velocity)
     velocity_ = velocity;
     osc_.SetFreq(mtof(note_));
     env_gate_ = active_ = true;
+}
+
+void Voice::OnControlChange(size_t number, float value)
+{
+    switch(number)
+    {
+        case 73: // Attack
+        {
+            env_.SetTime(ADSR_SEG_ATTACK, value / 127.f);
+        }
+        break;
+
+        case 80: // Decay
+        {
+            env_.SetTime(ADSR_SEG_DECAY, value / 127.f);
+        }
+        break;
+
+        case 7: // Sustain
+        {
+            env_.SetSustainLevel(value / 127.f);
+        }
+        break;
+
+        case 72: // Release
+        {
+            env_.SetTime(ADSR_SEG_RELEASE, value / 127.f);
+        }
+        break;
+
+        case 74: // Cutoff
+        {
+            filt_.SetFreq(mtof(value));
+        }
+        break;
+
+        case 71: // Resonance
+        {
+            filt_.SetRes(value / 127.f);
+        }
+        break;
+
+        case 94: // Detune
+        {
+            // filt_.SetDrive(value / 127.f);
+        }
+        break;
+
+        case 77: // Drive
+        {
+            filt_.SetDrive(value / 127.f);
+        }
+        break;
+
+        default: break;
+    }
 }
 
 void Voice::OnNoteOff() { env_gate_ = false; }
@@ -77,6 +138,15 @@ float VoiceManager<max_voices>::Process()
         sum += voices[i].Process();
     }
     return sum;
+}
+
+template<size_t max_voices>
+void VoiceManager<max_voices>::OnControlChange(float number, float value)
+{
+    for(size_t i = 0; i < max_voices; i++)
+    {
+        voices[i].OnControlChange(number, value);
+    }
 }
 
 template<size_t max_voices>

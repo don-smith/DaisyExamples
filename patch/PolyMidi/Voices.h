@@ -16,6 +16,7 @@ class Voice
     float Process();
     void OnNoteOn(float note, float velocity);
     void OnNoteOff();
+    void OnControlChange(size_t number, float value);
 
     inline bool  IsActive() const;
     inline float GetNote() const;
@@ -23,6 +24,7 @@ class Voice
   private:
     Oscillator osc_;
     Adsr       env_;
+    Svf        filt_;
     float      note_, velocity_;
     bool       active_, env_gate_;
 };
@@ -36,6 +38,7 @@ class VoiceManager
 
     float Process();
     void Init(float samplerate, size_t waveform);
+    void OnControlChange(float number, float value);
     void OnNoteOn(float notenumber, float velocity);
     void OnNoteOff(float notenumber);
 
