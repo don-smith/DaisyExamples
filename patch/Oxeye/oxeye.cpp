@@ -1,7 +1,10 @@
+#include <string>
+
 #include "daisy_patch.h"
 #include "daisysp.h"
+
+#include "menu.h"
 #include "voices.h"
-#include <string>
 
 DaisyPatch patch;
 

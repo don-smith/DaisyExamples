@@ -1,8 +1,8 @@
 # Project Name
-TARGET = PolyMidi
+TARGET = Oxeye
 
 # Sources
-CPP_SOURCES = Voices.cpp PolyMidi.cpp
+CPP_SOURCES = voices.cpp menu.cpp oxeye.cpp
 
 # Library Locations
 LIBDAISY_DIR = ../../libDaisy/

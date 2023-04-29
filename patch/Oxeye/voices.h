@@ -1,4 +1,4 @@
-// #pragma once
+#pragma once
 
 #include "daisy_patch.h"
 #include "daisysp.h"
