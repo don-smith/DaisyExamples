@@ -21,7 +21,7 @@ Four different oscillators with individually assignable waveforms with 1v/o pitc
 
 ## Screensaver
 
-Includes a [screensaver built by Michael Serra](https://github.com/mkserra/DaisyExamples/tree/master/patch/mserra/screensavers) that will start after 3 minutes. When it starts, it will deselect any selected channels so you can turn the encoder to disable the screensaver without changing the waveform of the last selected channel. Pushing the encoder with the screensaver on will turn it off and reselect the last selected channel. Manually adjusting pitch will not disable the screensaver - only depressing or rotating the encoder.
+Includes a screensaver that will blackout the display after 3 minutes. When it starts, it will deselect any selected channels so you can turn the encoder to disable the screensaver without changing the waveform of the last selected channel. Pushing the encoder with the screensaver on will turn it off and reselect the last selected channel. Manually adjusting pitch will not disable the screensaver - only depressing or rotating the encoder.
 
 ## Notes
 
