@@ -2,7 +2,7 @@
 TARGET = Oxeye
 
 # Sources
-CPP_SOURCES = voices.cpp ui.cpp oxeye.cpp
+CPP_SOURCES = voices.cpp ui/home.cpp ui/ui.cpp oxeye.cpp
 
 # Library Locations
 LIBDAISY_DIR = ../../libDaisy/

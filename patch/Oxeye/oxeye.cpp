@@ -4,7 +4,7 @@
 #include "daisysp.h"
 
 #include "voices.h"
-#include "ui.h"
+#include "ui/ui.h"
 
 using namespace std;
 using namespace daisy;
@@ -37,6 +37,7 @@ int main(void)
     DaisyPatch patch;
 
 	patch.Init();
+    ui.Init(&patch);
 	samplerate = patch.AudioSampleRate();
 	SetupVoiceManagers(samplerate);
 
@@ -45,7 +46,7 @@ int main(void)
 	patch.StartAudio(AudioCallback);
 
 	while(1) {
-        UpdateOled(patch, ui);
+        ui.Render();
 
         patch.midi.Listen();
         while(patch.midi.HasEvents())
@@ -117,8 +118,3 @@ void HandleMidiMessage(MidiEvent m)
         default: break;
     }
 }
-
-void UpdateOled(DaisyPatch patch, oxeye::UI ui) {
-    ui.Show(patch);
-}
- 
