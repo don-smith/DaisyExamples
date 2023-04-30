@@ -17,7 +17,7 @@ Four different oscillators with individually assignable waveforms with 1v/o pitc
 | Ctrl 1 - 4 | Oscillator Frequency | Manually controls the pitch of individual oscillators |
 | CV 1 - 4 | Oscillator Frequency | Controls the pitch of individual oscillators 1 volt/octave |
 | Encoder | Waveform | Push to select channel. Rotate to cycle through sine, triangle, saw, ramp, and square |
-| Audio Out 1 - 4 | Oscillator Input | Outputs for individual oscillators |
+| Audio Out 1 - 4 | Oscillator Output | Outputs for individual oscillators |
 
 ## Screensaver
 
